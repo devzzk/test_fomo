@@ -1,0 +1,126 @@
+version: '3'
+
+services:
+
+  ### Workspace Utilities ##################################
+  workspace:
+    platform: linux/x86_64
+    build:
+      context: ./docker/workspace
+      args:
+        - LARADOCK_PHP_VERSION=8.2
+        - INSTALL_XDEBUG=false
+        - INSTALL_PHPDBG=true
+        - INSTALL_PHPREDIS=true
+        - COMPOSER_GLOBAL_INSTALL=true
+        - COMPOSER_REPO_PACKAGIST=https://mirrors.aliyun.com/composer
+        - GITHUB_OAUTH_TOKEN=e27ef76cf0478eb07c3c7124d67e9314234895c4
+        - INSTALL_IMAGEMAGICK=false
+        - INSTALL_DUSK_DEPS=false
+        - INSTALL_SWOOLE=true
+        - CHROME_DRIVER_VERSION=74.0.3729.6
+        - NODE_VERSION=10.16.0
+        - YARN_VERSION=latest
+        - TZ=Asia/Shanghai
+    volumes:
+      - ./:/var/www
+    ports:
+      - "8000:8000"
+    expose:
+      - "8000"
+    logging:
+      options:
+        max-file: "5"
+        max-size: "10m"
+
+      #  ### PHP-FPM ##############################################
+      #  php-fpm:
+      #    platform: linux/x86_64
+      #    build:
+      #      context: ./docker/php-fpm
+      #      args:
+      #        - LARADOCK_PHP_VERSION=8.2
+      #        - INSTALL_PHPREDIS=true
+      #        - INSTALL_OPCACHE=true
+      #        - INSTALL_MYSQLI=true
+      #        - INSTALL_SWOOLE=true
+      #        - INSTALL_IMAGEMAGICK=false
+      #        - INSTALL_ADDITIONAL_LOCALES=false
+      #    volumes:
+      #      - ./docker/php-fpm/php8.0.ini:/usr/local/etc/php/php.ini
+      #      - ./:/var/www:cached
+      #    expose:
+      #      - 9000
+      #    logging:
+      #      options:
+      #        max-file: "5"
+      #        max-size: "10m"
+
+      #  ### PHP Worker ############################################
+      #  php-worker:
+      #    platform: linux/x86_64
+      #    build:
+      #      context: ./docker/php-worker
+      #      args:
+      #        - LARADOCK_PHP_VERSION=8.2
+      #    volumes:
+      #      - ./:/var/www:cached
+      #      - ./docker/php-worker/supervisord.d:/etc/supervisord.d
+      #    depends_on:
+      #      - php-fpm
+      #    links:
+      #      - php-fpm
+      #    logging:
+      #      options:
+      #        max-file: "5"
+      #        max-size: "10m"
+
+      #  ### NGINX Server #########################################
+      #  nginx:
+      #    build:
+      #      context: ./docker/nginx
+      #      args:
+      #        - PHP_UPSTREAM_CONTAINER=php-fpm
+      #        - PHP_UPSTREAM_PORT=9000
+      #    volumes:
+      #      - ./:/var/www:cached
+      #      - ./docker/docker-runtime/nginx/log:/var/log/nginx
+      #      - ./docker/nginx/local/sites:/etc/nginx/sites-available
+      #    ports:
+      #      - "8000:80"
+      #    expose:
+      #      - "8000"
+      #    depends_on:
+      #      - php-fpm
+      #    links:
+      #      - php-fpm
+
+      ### MySQL ################################################
+  mysql:
+    platform: linux/x86_64
+    build:
+      context: ./docker/mysql
+      args:
+        - MYSQL_VERSION=5.7
+    environment:
+      - MYSQL_USERNAME=root
+      - MYSQL_ROOT_PASSWORD=123456
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./docker/docker-runtime/mysql:/var/lib/mysql
+      - ./docker/mysql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    ports:
+      - "33060:3306"
+
+  ### Redis ################################################
+  redis:
+    image: redis:latest
+    volumes:
+      - ./docker/docker-runtime/redis:/data
+    ports:
+      - "6379:6379"
+    logging:
+      options:
+        max-file: "5"
+        max-size: "10m"
+
