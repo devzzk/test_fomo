@@ -1,7 +1,5 @@
 <?php
 /** @var Fomo\Router\Router $router */
+use App\Controllers\Controller;
 
-
-$router->get('/web', function () {
-    return response()->html('aaa');
-});
+$router->get('/user', [Controller::class, 'index']);

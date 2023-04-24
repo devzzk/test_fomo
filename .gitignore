@@ -9,3 +9,4 @@ dump.rdb
 /storage/serverState.json
 /storage/routes
 /docker/docker-runtime/
+/package/

@@ -33,67 +33,67 @@ services:
         max-file: "5"
         max-size: "10m"
 
-      #  ### PHP-FPM ##############################################
-      #  php-fpm:
-      #    platform: linux/x86_64
-      #    build:
-      #      context: ./docker/php-fpm
-      #      args:
-      #        - LARADOCK_PHP_VERSION=8.2
-      #        - INSTALL_PHPREDIS=true
-      #        - INSTALL_OPCACHE=true
-      #        - INSTALL_MYSQLI=true
-      #        - INSTALL_SWOOLE=true
-      #        - INSTALL_IMAGEMAGICK=false
-      #        - INSTALL_ADDITIONAL_LOCALES=false
-      #    volumes:
-      #      - ./docker/php-fpm/php8.0.ini:/usr/local/etc/php/php.ini
-      #      - ./:/var/www:cached
-      #    expose:
-      #      - 9000
-      #    logging:
-      #      options:
-      #        max-file: "5"
-      #        max-size: "10m"
+#  ### PHP-FPM ##############################################
+#  php-fpm:
+#    platform: linux/x86_64
+#    build:
+#      context: ./docker/php-fpm
+#      args:
+#        - LARADOCK_PHP_VERSION=8.2
+#        - INSTALL_PHPREDIS=true
+#        - INSTALL_OPCACHE=true
+#        - INSTALL_MYSQLI=true
+#        - INSTALL_SWOOLE=true
+#        - INSTALL_IMAGEMAGICK=false
+#        - INSTALL_ADDITIONAL_LOCALES=false
+#    volumes:
+#      - ./docker/php-fpm/php8.0.ini:/usr/local/etc/php/php.ini
+#      - ./:/var/www:cached
+#    expose:
+#      - 9000
+#    logging:
+#      options:
+#        max-file: "5"
+#        max-size: "10m"
 
-      #  ### PHP Worker ############################################
-      #  php-worker:
-      #    platform: linux/x86_64
-      #    build:
-      #      context: ./docker/php-worker
-      #      args:
-      #        - LARADOCK_PHP_VERSION=8.2
-      #    volumes:
-      #      - ./:/var/www:cached
-      #      - ./docker/php-worker/supervisord.d:/etc/supervisord.d
-      #    depends_on:
-      #      - php-fpm
-      #    links:
-      #      - php-fpm
-      #    logging:
-      #      options:
-      #        max-file: "5"
-      #        max-size: "10m"
+  ### PHP Worker ############################################
+  php-worker:
+    platform: linux/x86_64
+    build:
+      context: ./docker/php-worker
+      args:
+        - LARADOCK_PHP_VERSION=8.2
+    volumes:
+      - ./:/var/www:cached
+      - ./docker/php-worker/supervisord.d:/etc/supervisord.d
+    depends_on:
+      - workspace
+    links:
+      - workspace
+    logging:
+      options:
+        max-file: "5"
+        max-size: "10m"
 
-      #  ### NGINX Server #########################################
-      #  nginx:
-      #    build:
-      #      context: ./docker/nginx
-      #      args:
-      #        - PHP_UPSTREAM_CONTAINER=php-fpm
-      #        - PHP_UPSTREAM_PORT=9000
-      #    volumes:
-      #      - ./:/var/www:cached
-      #      - ./docker/docker-runtime/nginx/log:/var/log/nginx
-      #      - ./docker/nginx/local/sites:/etc/nginx/sites-available
-      #    ports:
-      #      - "8000:80"
-      #    expose:
-      #      - "8000"
-      #    depends_on:
-      #      - php-fpm
-      #    links:
-      #      - php-fpm
+#  ### NGINX Server #########################################
+#  nginx:
+#    build:
+#      context: ./docker/nginx
+#      args:
+#        - PHP_UPSTREAM_CONTAINER=php-fpm
+#        - PHP_UPSTREAM_PORT=9000
+#    volumes:
+#      - ./:/var/www:cached
+#      - ./docker/docker-runtime/nginx/log:/var/log/nginx
+#      - ./docker/nginx/local/sites:/etc/nginx/sites-available
+#    ports:
+#      - "8000:80"
+#    expose:
+#      - "8000"
+#    depends_on:
+#      - php-fpm
+#    links:
+#      - php-fpm
 
       ### MySQL ################################################
   mysql:
