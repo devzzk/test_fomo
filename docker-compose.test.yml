@@ -1,0 +1,70 @@
+version: '3'
+
+services:
+#  ### Traefik ############################################################
+#  traefik:
+#    image: "traefik:latest"
+#    labels:
+#      - "traefik.enable=true"
+#      - "traefik.http.routers.app.rule=Host(`localhost`)"
+#      - "traefik.http.services.app.loadbalancer.server.port=80"
+#    ports:
+#      - "80:80"
+#      - "8080:8080"
+#      - "443:443"
+#    volumes:
+#      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+#      - "./letsencrypt:/etc/letsencrypt"
+#    restart: always
+#    logging:
+#      options:
+#        max-file: "5"
+#        max-size: "10m"
+
+  ### App ############################################################
+  app:
+    platform: linux/x86_64
+    image: registry.cn-hangzhou.aliyuncs.com/devzzk/fomo-app:v1.0.0
+    ports:
+      - "8000:8000"
+    expose:
+#      - "80"
+#      - "8080"
+#      - "443"
+      - "8000"
+#    labels:
+#      - "traefik.enable=true"
+    restart: always
+    logging:
+      options:
+        max-file: "5"
+        max-size: "10m"
+
+  ### MySQL ################################################
+  mysql:
+    platform: linux/x86_64
+    build:
+      context: ./docker/mysql
+      args:
+        - MYSQL_VERSION=5.7
+    environment:
+      - MYSQL_USERNAME=root
+      - MYSQL_ROOT_PASSWORD=123456
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./docker/docker-runtime/mysql:/var/lib/mysql
+      - ./docker/mysql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    ports:
+      - "33060:3306"
+
+  ### Redis ################################################
+  redis:
+    image: redis:latest
+    volumes:
+      - ./docker/docker-runtime/redis:/data
+    ports:
+      - "6379:6379"
+    logging:
+      options:
+        max-file: "5"
+        max-size: "10m"
